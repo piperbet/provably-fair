@@ -1,0 +1,63 @@
+<html>
+<style>
+input {
+  width: 100%;
+}
+</style>
+<body>
+<input type="text" id="serverSeed" value="3b79a56f040e384220d5d8c17834b017e9f9da348f3bfb7cd86d4644bb61ad8d" />
+<input type="text" id="clientSeed" value="f054ef22bef543fb7bd392419bea3727ed297e9820d72335c68de209c08149c9" />
+<input type="number" id="playCount" value="1611" />
+<button id="execute">Execute</button>
+<p>Result: <span id="result"></span></p>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+<script type="text/javascript">
+const serverSeed = document.getElementById("serverSeed");
+const clientSeed = document.getElementById("clientSeed");
+const playCount = document.getElementById("playCount");
+const result = document.getElementById("result");
+
+result.innerText = getSpin(serverSeed.value, clientSeed.value, playCount.value);
+
+document.getElementById("execute").addEventListener("click", function () {
+  result.innerText = getSpin(
+    serverSeed.value,
+    clientSeed.value,
+    playCount.value
+  );
+});
+
+function getSpinFromHash(hash, maxSpin = 99999999) {
+  const subHash = hash.slice(0, 13);
+  const valueFromHash = Number.parseInt(subHash, 16);
+
+  // Get dynamic result for this roll
+  const e = Math.pow(2, 52);
+  const result = valueFromHash / e;
+  return Math.floor(result * maxSpin);
+}
+
+function getSpin(serverSeed, clientSeed, playCount) {
+  const seed = getCombinedSeed("BOXES", serverSeed, clientSeed, playCount);
+  console.log("seed", seed);
+  const hash = sha256.hmac(seed, "");
+  console.log("hash", hash);
+
+  return getSpinFromHash(hash);
+}
+
+function getCombinedSeed(game, serverSeed, clientSeed, playCount) {
+  // Add main parameters
+  const seedParameters = [serverSeed, clientSeed, playCount];
+
+  // Add game parameter if needed
+  if (game) {
+    seedParameters.unshift(game);
+  }
+
+  // Combine parameters to get seed value
+  return seedParameters.join("-");
+}
+</script>
+</html>

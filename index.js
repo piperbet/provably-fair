@@ -27,7 +27,9 @@ function getSpinFromHash(hash, maxSpin = 99999999) {
 
 function getSpin(serverSeed, clientSeed, playCount) {
     const seed = getCombinedSeed('BOXES', serverSeed, clientSeed, playCount);
+    console.log("seed", seed)
     const hash = crypto.createHmac('sha256', seed).digest('hex');
+    console.log("hash", hash)
 
     return getSpinFromHash(hash);
 }
